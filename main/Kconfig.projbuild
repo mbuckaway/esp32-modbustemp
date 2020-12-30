@@ -1,0 +1,117 @@
+menu "EPever Modbus Configuration"
+
+    config MB_TEST_MODE
+        bool "Select to disable WIFI/MQTT and run MODBUS tests"
+
+    config MB_DEVICE_ADDR
+        int "Modbus Device Address"
+        range 0 255
+        default 1
+        help
+            Default address of the Modbus Temperature Sensor. Docs suggest it is 1 by default
+            by some units are set to 2. You can use the Windows software to change it.
+
+    config MB_UART_PORT_NUM
+        int "UART port number"
+        range 0 2 if IDF_TARGET_ESP32
+        default 2 if IDF_TARGET_ESP32
+        range 0 1 if IDF_TARGET_ESP32S2
+        default 1 if IDF_TARGET_ESP32S2
+        help
+            UART communication port number for Modbus example.
+
+    config MB_UART_BAUD_RATE
+        int "UART communication speed"
+        range 1200 115200
+        default 115200
+        help
+            UART communication speed for Modbus example.
+
+    config MB_UART_RXD
+        int "UART RXD (RS485 R0) pin number"
+        range 0 34 if IDF_TARGET_ESP32
+        default 22 if IDF_TARGET_ESP32
+        range 0 46 if IDF_TARGET_ESP32S2
+        default 19 if IDF_TARGET_ESP32S2
+        help
+            GPIO number for UART RX pin. See UART documentation for more information
+            about available pin numbers for UART.
+
+    config MB_UART_TXD
+        int "UART TXD (RS485 DI) pin number"
+        range 0 34 if IDF_TARGET_ESP32
+        default 23 if IDF_TARGET_ESP32
+        range 0 46 if IDF_TARGET_ESP32S2
+        default 20 if IDF_TARGET_ESP32S2
+        help
+            GPIO number for UART TX pin. See UART documentation for more information
+            about available pin numbers for UART.
+
+    config MB_UART_RTS
+        int "UART RTS (RS485 DE/RE) pin number"
+        range 0 34 if IDF_TARGET_ESP32
+        range 0 46 if IDF_TARGET_ESP32S2
+        default 18
+        help
+            GPIO number for UART RTS pin. This pin is connected to
+            ~RE/DE pin of RS485 transceiver to switch direction.
+            See UART documentation for more information about available pin
+            numbers for UART.
+
+    choice MB_COMM_MODE
+        prompt "Modbus communication mode"
+        default MB_COMM_MODE_RTU if CONFIG_FMB_COMM_MODE_RTU_EN
+        help
+            Selection of Modbus communication mode option for Modbus.
+            EPSolar Tracer requires RTU mode.
+
+        config MB_COMM_MODE_RTU
+            bool "RTU mode"
+            depends on FMB_COMM_MODE_RTU_EN
+
+        config MB_COMM_MODE_ASCII
+            bool "ASCII mode"
+            depends on FMB_COMM_MODE_ASCII_EN
+
+    endchoice
+
+endmenu
+
+menu "ThinkSpeak Configuration"
+
+    config BROKER_URL
+        string "Broker URL"
+        default "mqtt://mqtt.thingspeak.com"
+        help
+            URL of the broker to connect to
+
+    config THINKSPEAK_CHANNELID
+        int "Channel ID"
+        default 0
+
+    config THINKSPEAK_MQTT_KEY
+        string "MQTT API Key (from user profile)"
+
+    config THINKSPEAK_CHANNEL_READ_KEY
+        string "Channel Read Key"
+
+    config THINKSPEAK_CHANNEL_WRITE_KEY
+        string "Channel Write Key"
+
+    config THINKSPEAK_DONT_PUBLISH
+        bool "Select to disable publish (used only for testing)"
+
+    config THINKSPEAK_LOG_PASSWDS_IN_LOGS
+        bool "Log passwords in logs"
+        default true
+        help
+            The MQTT passwords and API keys are not logged by default. Select to display passwords and api keys in
+            logs for debugging purposes.
+    
+    config THINKSPEAK_LOOP_DELAY_SECONDS
+        int "Delay for each sensor read/upload (sec)"
+        default 60
+        help
+            Delay at the bottom of the MQTT loop before interations. Typically set to 60 to delay uploads
+            of data for one minute
+endmenu

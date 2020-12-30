@@ -1,0 +1,16 @@
+{
+    "files.associations": {
+        "*.py": "python",
+        "__debug": "c",
+        "__nullptr": "c",
+        "algorithm": "c",
+        "complex": "c",
+        "exception": "c",
+        "type_traits": "c",
+        "utility": "c",
+        "functional": "c",
+        "limits": "c",
+        "memory": "c",
+        "string": "c"
+    }
+}
