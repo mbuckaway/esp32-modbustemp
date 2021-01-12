@@ -53,7 +53,7 @@
 #endif
 
 
-static const char *TAG = "EPSOLAR";
+static const char *TAG = "MAIN";
 
 void app_main(void)
 {
@@ -78,10 +78,12 @@ void app_main(void)
     esp_log_level_set("MB_SERIAL", ESP_LOG_DEBUG);
     esp_log_level_set("MB_MASTER_SERIAL", ESP_LOG_DEBUG);
 #endif
+#if 0
     esp_log_level_set("MB_CONTROLLER_MASTER", ESP_LOG_DEBUG);
     esp_log_level_set("MB_PORT_TAG", ESP_LOG_DEBUG);
     esp_log_level_set("MB_SERIAL", ESP_LOG_DEBUG);
     esp_log_level_set("MB_MASTER_SERIAL", ESP_LOG_DEBUG);
+#endif
 
     ESP_ERROR_CHECK(modbus_init());
 

@@ -143,7 +143,7 @@ static int homekit_read(hap_char_t *hc, hap_status_t *status_code, void *serv_pr
         new_val.f = get_temperature();
         hap_char_update_val(hc, &new_val);
         *status_code = HAP_STATUS_SUCCESS;
-        ESP_LOGI(TAG,"homekit ait temp status updated to %0.01f", new_val.f);
+        ESP_LOGI(TAG,"READ: temperature status updated to %0.01f", new_val.f);
     }
     // Only update the sensor info on a temperature read since they are read one after another
     if (!strcmp(hap_char_get_type_uuid(hc), HAP_CHAR_UUID_CURRENT_RELATIVE_HUMIDITY)) 
@@ -152,7 +152,7 @@ static int homekit_read(hap_char_t *hc, hap_status_t *status_code, void *serv_pr
         new_val.f = get_humidity();;
         hap_char_update_val(hc, &new_val);
         *status_code = HAP_STATUS_SUCCESS;
-        ESP_LOGI(TAG,"humidity status updated to %0.01f%%", new_val.f);
+        ESP_LOGI(TAG,"READ: humidity status updated to %0.01f%%", new_val.f);
     }
     return HAP_SUCCESS;
 }
