@@ -7,5 +7,6 @@
 
 
 #pragma once
-
+#ifdef CONFIG_THINKSPEAK_ENABLE
 void mqtt_app_start(void);
+#endif

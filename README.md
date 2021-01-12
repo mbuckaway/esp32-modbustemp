@@ -1,10 +1,14 @@
-# XY-MD02 ModBus Temperature/Humidity Monitor
+# XY-MD02 ModBus Temperature/Humidity Monitor with Homekit/Thinkspeak Support
 
 ## Purpose
 
 The purpose of this code is to monitor the temperture/humidity on the XY MD02 Modbus Temp/Humidity sensor and upload data to Thinkspeak. The sensor can be found on [Aliexpress](https://www.aliexpress.com/item/1005001475675808.html). This code is work in progress as the Espressif Modbus support is flakey. To work correctly, IDF v4.2 along with the Modbus patch on [Issue #6134](https://github.com/espressif/esp-idf/issues/6134) is required...and then it still make not work consistently. Timing issues occur with the modbus thread and other threads.
 
 The code is built using the ESP-IDF and not Ardrino. Espresif provides the modbus driver based on the Freemodbus source. This code is heavily based on the Modbus Master and MQTT examples from Espressif ESP-IDF examples with some if my own code layered on top to make it do what I want.
+
+This code is an attempt to get both Homekit and Thinkspeak support. If Thinkspeak is enabld, it sets up a thread to read the sensor. Homekit support runs passively in it's own thread and responds when requested. The temperature and humidity values are stored in the modbus code. Without Thinkspeak, the modbus code runs a thread to poll the sensor. Homekit responds better when it returns immediately.
+
+The device solves the problem of running a temperature/humidity sensor outside while powering a ESP32 board. THe modbus sensor allows the sensor to be located outside, and the ESP32 board to be located inside. In the future, additional sensors could be added to the modbus (wind/rain/etc.).
 
 ## Hardware required
 
@@ -32,9 +36,7 @@ idf.py menuconfig
 
 Configure the UART pins used for modbus communication using and table below.
 
-The XY-MD02 requires the modbus mode be set to RTU and the default baud rate is 9600. The first item for running modbus tests should remain off as is disables WIFI and MQTT - used only for debugging modbus issues. The project uses two status leds: one for wifi and one for MQTT (currently removed, but will be added back later). These indicate how things are working. When the unit is connected to wifi and MQTT, both lights are off. The board will turn both lights one when it boots to indicate the program has started and is running. 
-
-![ESP32 Config](image/esp32-config.png)
+The XY-MD02 requires the modbus mode be set to RTU and the default baud rate is 9600. 
 
 The code permits almost any set of pins to be used for the UART with the restrictions noted below.
 

@@ -1,5 +1,9 @@
 build/
-sdkconfig.*
+sdkconfig.save
+sdkconfig.old
+sdkconfig.loaded
+sdkconfig.mine
+sdkconfig.change
 sdkconfig
 *.log
 bug.txt

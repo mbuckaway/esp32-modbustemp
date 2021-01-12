@@ -40,9 +40,17 @@
 #include "lwip/netdb.h"
 
 #include "esp_log.h"
+#ifdef CONFIG_THINKSPEAK_ENABLE
 #include "mqtt.h"
+#else
+#include "modbus.h"
+#endif
+#include "led.h"
 #include "modbus.h"
 #include "sdkconfig.h"
+#ifdef CONFIG_HOMEKIT_ENABLED
+#include "homekit.h"
+#endif
 
 
 static const char *TAG = "EPSOLAR";
@@ -75,19 +83,26 @@ void app_main(void)
     esp_log_level_set("MB_SERIAL", ESP_LOG_DEBUG);
     esp_log_level_set("MB_MASTER_SERIAL", ESP_LOG_DEBUG);
 
-//    configure_led();
-//    led_both();
-
     ESP_ERROR_CHECK(modbus_init());
 
-#ifdef CONFIG_MB_TEST_MODE
-    wifi_setup();
-    wifi_connect();
-    modbus_test_start();
-#else
-    wifi_setup();
-    wifi_connect();
-    mqtt_app_start();
-#endif
+    configure_led();
+    led_both();
 
+    void (*ptr_1on)() = &led1_on;
+    set_led_disconnected_callback(ptr_1on);
+    void (*ptr_off)() = &led_off;
+    set_led_connected_callback(ptr_off);
+
+    wifi_setup();
+    wifi_connect();
+
+#ifdef CONFIG_HOMEKIT_ENABLED
+    homekit_start();
+#endif    
+
+#ifdef CONFIG_THINKSPEAK_ENABLE
+    mqtt_app_start();
+#else
+    modbus_start();    
+#endif
 }

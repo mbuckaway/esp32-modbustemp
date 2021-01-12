@@ -21,6 +21,7 @@
 #include "modbus.h"
 #include "sdkconfig.h"
 #include "threads.h"
+#include "homekit.h"
 
 #define MB_PORT_NUM     (CONFIG_MB_UART_PORT_NUM)   // Number of UART port used for Modbus connection
 #define MB_DEV_SPEED    (CONFIG_MB_UART_BAUD_RATE)  // The communication speed of the UART
@@ -78,12 +79,12 @@ static const mb_parameter_descriptor_t device_parameters[] = {
 static const uint16_t num_device_parameters = (sizeof(device_parameters)/sizeof(device_parameters[0]));
 
 /**
- * @brief Most of the EPSolar data items are stored as int16 items multiplied by 100. This function converts
+ * @brief Sensor data items are stored as int16 items multiplied by 10. This function converts
  * the item to a float.
  * @param i - integer value
- * @returns float of the value multiplied by 100
+ * @returns float of the value multiplied by 10
  */
-float get_epever_value(uint16_t cid)
+float get_value(uint16_t cid)
 {
     float result = 0.0;
     if (cid<CID_COUNT)
@@ -92,17 +93,19 @@ float get_epever_value(uint16_t cid)
     }
     else
     {
-        ESP_LOGE(MODBUS_TAG, "Invalid CID %d in get_epever_value", cid);
+        ESP_LOGE(MODBUS_TAG, "Invalid CID %d in get_value", cid);
     }
     return result;
 }
 
-/**
- * @brief Returns true if the day/night flat is set to night
- */
-bool isEPeverNight(void)
+float get_temperature(void)
 {
-    return input_reg_params.isNight;
+    return get_value(CID_INP_DATA_TEMPERATURE);
+}
+
+float get_humidity(void)
+{
+    return get_value(CID_INP_DATA_HUMIDITY);
 }
 
 void clearmodbus(void)
@@ -190,18 +193,6 @@ void read_modbus(void)
                                     value
                                     );
                 }
-            } else if (param_descriptor->mb_param_type == MB_PARAM_DISCRETE)
-            {
-                // Special case for the one Discrete reg we read
-                uint16_t state = value;
-                const char* rw_str = (state & param_descriptor->param_opts.opt1) ? "ON" : "OFF";
-                input_reg_params.isNight = (state & param_descriptor->param_opts.opt1);
-                ESP_LOGI(MODBUS_TAG, "Characteristic #%d %s (%s) value = %s (0x%x) read successful.",
-                                param_descriptor->cid,
-                                (char*)param_descriptor->param_key,
-                                (char*)param_descriptor->param_units,
-                                (const char*)rw_str,
-                                value);
             }
             else
             {
@@ -210,6 +201,8 @@ void read_modbus(void)
             vTaskDelay(POLL_TIMEOUT_TICS); // timeout between polls
         }
     }
+    temperature_update(get_temperature());
+    humidity_update(get_humidity());
 }
 
 /**
@@ -276,23 +269,24 @@ void modbus_shutdown(void)
     ESP_ERROR_CHECK(mbc_master_destroy());
 }
 
-#ifdef CONFIG_MB_TEST_MODE
+// If THinkspeak is disabled we need a loop to read the modbus device
+
+#ifndef CONFIG_THINKSPEAK_ENABLE
 
 static void modbus_reader(void *pvParameter)
 {
-    ESP_LOGI(MODBUS_TAG, "MODBUS READ READ TEST TASK STARTED");
-
-// Hammer the MODBUS to test for errors
+    // Read the modbus on a loop, because Homekit doesn't like to wait
     while (1)
     {
         read_modbus();
-        vTaskDelay(3000 / portTICK_PERIOD_MS);
+        vTaskDelay(CONFIG_MB_THREAD_TIMEOUT * 1000 / portTICK_PERIOD_MS);
     }
 }
 
-void modbus_test_start(void)
+void modbus_start(void)
 {
-    ESP_LOGI(MODBUS_TAG, "MODBUS READ READ TEST");
+    ESP_LOGI(MODBUS_TAG, "MODBUS Main Loop Start");
     xTaskCreate(modbus_reader, THREAD_MODBUS_NAME, THREAD_MODBUS_STACKSIZE, NULL, THREAD_MODBUS_PRIORITY, NULL);
 }
+
 #endif

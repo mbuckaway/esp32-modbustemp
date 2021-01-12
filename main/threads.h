@@ -22,11 +22,9 @@
 #define THREAD_MQTT_PRIORITY 9
 
 // MODBUS Thread (used for testing only)
-#ifdef CONFIG_MB_TEST_MODE
 #define THREAD_MODBUS_NAME "modbus_reader"
 #define THREAD_MODBUS_PRIORITY 5
 #define THREAD_MODBUS_STACKSIZE configMINIMAL_STACK_SIZE * 4
-#endif
 
 // Make sure we configure MQTT with a different priority than the above
 #if THREAD_MQTT_PRIORITY < 6

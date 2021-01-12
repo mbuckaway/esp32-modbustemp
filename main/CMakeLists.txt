@@ -3,6 +3,8 @@ set(PROJECT_NAME "temp_modbus")
 set(CSOURCES
     "modbus.c"
     "mqtt.c"
+    "led.c"
+    "homekit.c"
     "app_main.c"
 )
 

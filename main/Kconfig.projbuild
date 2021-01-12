@@ -1,7 +1,4 @@
-menu "EPever Modbus Configuration"
-
-    config MB_TEST_MODE
-        bool "Select to disable WIFI/MQTT and run MODBUS tests"
+menu "Temp Sensor Modbus Configuration"
 
     config MB_DEVICE_ADDR
         int "Modbus Device Address"
@@ -58,6 +55,12 @@ menu "EPever Modbus Configuration"
             See UART documentation for more information about available pin
             numbers for UART.
 
+    config MB_THREAD_TIMEOUT
+        int "MODBUS main thread timeout"
+        default 60
+        help
+            Time between polls of the modbus device. This is used if Thinkspeak is disabled.
+        
     choice MB_COMM_MODE
         prompt "Modbus communication mode"
         default MB_COMM_MODE_RTU if CONFIG_FMB_COMM_MODE_RTU_EN
@@ -79,29 +82,40 @@ endmenu
 
 menu "ThinkSpeak Configuration"
 
+    config THINKSPEAK_ENABLE
+        bool "Enable ThinkSpeak MQTT Support"
+        default n
+
     config BROKER_URL
+        depends on THINKSPEAK_ENABLE
         string "Broker URL"
         default "mqtt://mqtt.thingspeak.com"
         help
             URL of the broker to connect to
 
     config THINKSPEAK_CHANNELID
+        depends on THINKSPEAK_ENABLE
         int "Channel ID"
         default 0
 
     config THINKSPEAK_MQTT_KEY
+        depends on THINKSPEAK_ENABLE
         string "MQTT API Key (from user profile)"
 
     config THINKSPEAK_CHANNEL_READ_KEY
+        depends on THINKSPEAK_ENABLE
         string "Channel Read Key"
 
     config THINKSPEAK_CHANNEL_WRITE_KEY
+        depends on THINKSPEAK_ENABLE
         string "Channel Write Key"
 
     config THINKSPEAK_DONT_PUBLISH
+        depends on THINKSPEAK_ENABLE
         bool "Select to disable publish (used only for testing)"
 
     config THINKSPEAK_LOG_PASSWDS_IN_LOGS
+        depends on THINKSPEAK_ENABLE
         bool "Log passwords in logs"
         default true
         help
@@ -109,9 +123,53 @@ menu "ThinkSpeak Configuration"
             logs for debugging purposes.
     
     config THINKSPEAK_LOOP_DELAY_SECONDS
+        depends on THINKSPEAK_ENABLE
         int "Delay for each sensor read/upload (sec)"
         default 60
         help
             Delay at the bottom of the MQTT loop before interations. Typically set to 60 to delay uploads
             of data for one minute
+endmenu
+
+menu "Status LED Configuration"
+    config LED1_GPIO
+        int "Status LED 1 GPIO"
+        default 25
+
+    config LED2_GPIO
+        int "Status LED 2 GPIO"
+        default 26
+    
+endmenu
+
+menu "Homekit Configuration"
+
+    config HOMEKIT_ENABLED
+        bool "Enable Homekit Support"
+        default y
+
+    config HOMEKIT_USE_HARDCODED_SETUP_CODE
+        depends on HOMEKIT_ENABLED
+        bool "Use hard-coded setup code"
+        default y
+        help
+            HomeKit does not recommend having the setup code programmed in the accessory as is.
+            Instead, it expects setup info (salt-verifier pair) generated for the given setup code.
+            Use this option only for testing purposes. For production, the setup info should be
+            used.
+
+    config HOMEKIT_SETUP_CODE
+        string "HomeKit Setup Code"
+        default "111-22-333"
+        depends on HOMEKIT_USE_HARDCODED_SETUP_CODE
+        help
+            Setup code to be used for HomeKot pairing, if hard-coded setup code is enabled.
+
+    config HOMEKIT_SETUP_ID
+        string "HomeKit Setup Id"
+        default "ES32"
+        depends on HOMEKIT_USE_HARDCODED_SETUP_CODE
+        help
+            Setup id to be used for HomeKot pairing, if hard-coded setup code is enabled.
+
 endmenu

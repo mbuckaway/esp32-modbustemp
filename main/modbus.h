@@ -13,23 +13,18 @@ enum {
 typedef struct
 {
     float inputs[CID_COUNT];
-    bool isNight;
 } input_reg_params_t;
 #pragma pack(pop)
 
+/**
+ * @brief Returns temperature value
+ */
+float get_temperature(void);
 
 /**
- * @brief Most of the EPSolar data items are stored as int16 items multiplied by 100. This function converts
- * the item to a float.
- * @param i - integer value
- * @returns float of the value multiplied by 100
+ * @brief Returns temperature value
  */
-float get_epever_value(uint16_t cid);
-
-/**
- * @brief Returns true if the day/night flat is set to night
- */
-bool isEPeverNight(void);
+float get_humidity(void);
 
 /**
  * @brief Clears the input structure to reset the data to all zero
@@ -53,6 +48,8 @@ void read_modbus(void);
 esp_err_t modbus_init(void);
 
 void modbus_shutdown(void);
+void modbus_start(void);
+
 
 #ifdef CONFIG_MB_TEST_MODE
 /**

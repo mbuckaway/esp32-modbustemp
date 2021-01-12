@@ -21,7 +21,9 @@
 #include "mqtt_client.h"
 #include "modbus.h"
 #include "threads.h"
-//#include "led.h"
+#include "led.h"
+
+#ifdef CONFIG_THINKSPEAK_ENABLE
 
 static const char *TAG = "MQTT";
 
@@ -262,3 +264,5 @@ void mqtt_app_start(void)
     xTaskCreate(mqttpublish, THREAD_MQTT_NAME, THREAD_MQTT_STACKSIZE, NULL, THREAD_MQTT_PRIORITY, NULL);
 
 }
+
+#endif
